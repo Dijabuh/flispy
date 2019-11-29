@@ -20,8 +20,11 @@ class Atom():
     def __init__(self, data):
         self.is_num = False
         self.is_str = False
-        if is_int(data) or is_float(data):
+        if is_int(data):
             self.data = int(data)
+            self.is_num = True
+        elif is_float(data):
+            self.data = int(float(data))
             self.is_num = True
         else:
             self.data = data
@@ -32,6 +35,12 @@ class Atom():
 
     def __repr__(self):
         return str(self.data)
+
+    def __add__(self, other):
+        if self.is_num and other.is_num:
+            return self.data + other.data
+        else:
+            raise RuntimeError("Cant add 2 atoms that arent both numbers")
 
 #class to represent a lisp environment
 class Environment():
@@ -72,7 +81,7 @@ def tokenize(line):
         #only add token if length is greater than 0
         if line[i].isspace():
             if len(cur_token) > 0:
-                tokens.append(cur_token)
+                tokens.append(cur_token.strip())
                 cur_token = ""
 
         #if current char is a ( or a ) or a '
@@ -80,7 +89,7 @@ def tokenize(line):
         #only add current token if length is greater than 0
         elif line[i] in (")", "(", "'"):
             if len(cur_token) > 0:
-                tokens.append(cur_token)
+                tokens.append(cur_token.strip())
                 cur_token = ""
             tokens.append(line[i])
 
@@ -90,7 +99,7 @@ def tokenize(line):
    
     #add last token
     if len(cur_token) > 0:
-        tokens.append(cur_token)
+        tokens.append(cur_token.strip())
 
     return tokens
 
@@ -133,7 +142,6 @@ def parse(tokens):
 def insert_quote(syntax_tree):
     #loop through all expressions in the tree
     for index, expr in enumerate(syntax_tree):
-        print(expr)
         #if the expression is a list, recursivley call insert_quote on the list
         if isinstance(expr, list):
             insert_quote(expr)
@@ -155,44 +163,52 @@ def eval(expr, env):
     #otherwise, the expression is a list
     #first check if the first expression in the list is one of the primitives
     #plus
-    if expr[0] is "+":
+    if expr[0].data is "+":
         #must be 2 arguements for the + function
-        if len(expr[1:]) is not 2
+        if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function +")
         #return the sum of the 2 arguements
-        return eval(expr[1]) + eval(expr[2])
+        return eval(expr[1], env) + eval(expr[2], env)
 
     #minus
-    if expr[0] is "-":
+    if expr[0].data is "-":
         #must be 2 arguements for the - function
-        if len(expr[1:]) is not 2
+        if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function -")
         #return the sum of the 2 arguements
-        return eval(expr[1]) - eval(expr[2])
+        return eval(expr[1], env) - eval(expr[2], env)
 
     #multiply
-    if expr[0] is "*":
+    if expr[0].data is "*":
         #must be 2 arguements for the * function
-        if len(expr[1:]) is not 2
+        if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function *")
         #return the sum of the 2 arguements
-        return eval(expr[1]) * eval(expr[2])
+        return eval(expr[1], env) * eval(expr[2], env)
 
     #divide
-    if expr[0] is "/":
+    if expr[0].data is "/":
         #must be 2 arguements for the / function
-        if len(expr[1:]) is not 2
+        if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function /")
         #return the sum of the 2 arguements
-        return eval(expr[1]) / eval(expr[2])
+        return eval(expr[1], env) / eval(expr[2], env)
+
+    #define binds a symbol to an expression
+    if expr[0].data is "define":
+        #must be 2 arguements for the / function
+        if len(expr[1:]) is not 2:
+            raise SyntaxError("Expected 2 arguements for function define")
+        env.add_symbol(expr[1], expr[2])
 
 def main():
-    str = "(define square (lambda ('x y z) (* 'a b)))"
+    str = input()
     toke_str = tokenize(str)
-    print(toke_str)
     syntax_tree = parse(toke_str)
-    print(syntax_tree)
     insert_quote(syntax_tree)
+    env = Environment()
+    
     print(syntax_tree)
+    print(eval(syntax_tree, env))
 
 main()
