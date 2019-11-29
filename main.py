@@ -45,7 +45,7 @@ class Atom():
 #class to represent a lisp environment
 class Environment():
     def __init__(self, upper_env = None):
-        self.env = {}
+        self.env = dict()
         #if an environemnt was passed in, copy its environment to the new one
         #used for procedure calls
         if upper_env:
@@ -154,7 +154,7 @@ def insert_quote(syntax_tree):
 def eval(expr, env):
     #if the expression is a number atom, return the number
     if isinstance(expr, Atom) and expr.is_num:
-        return expr.data
+        return expr
     #if the expression is not a number but still an atom,
     #return the expression defined by the symbol
     elif isinstance(expr, Atom):
@@ -167,6 +167,8 @@ def eval(expr, env):
         #must be 2 arguements for the + function
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function +")
+        print(type(expr[1]))
+        print(type(expr[2]))
         #return the sum of the 2 arguements
         return eval(expr[1], env) + eval(expr[2], env)
 
@@ -195,20 +197,21 @@ def eval(expr, env):
         return eval(expr[1], env) / eval(expr[2], env)
 
     #define binds a symbol to an expression
-    if expr[0].data is "define":
+    if expr[0].data == "define":
         #must be 2 arguements for the / function
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function define")
-        env.add_symbol(expr[1], expr[2])
+        env.add_symbol(expr[1].data, expr[2])
 
 def main():
-    str = input()
-    toke_str = tokenize(str)
-    syntax_tree = parse(toke_str)
-    insert_quote(syntax_tree)
+    #repl
     env = Environment()
-    
-    print(syntax_tree)
-    print(eval(syntax_tree, env))
+    while True:
+        str = input()
+        toke_str = tokenize(str)
+        syntax_tree = parse(toke_str)
+        insert_quote(syntax_tree)
+        print(syntax_tree)
+        print(eval(syntax_tree, env))
 
 main()
