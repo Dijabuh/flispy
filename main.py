@@ -59,6 +59,12 @@ class Atom():
             return int(self.data / other.data)
         else:
             raise RuntimeError("Cant divide 2 atoms that arent both numbers")
+
+    def __eq__(self, other):
+        if isinstance(other, Atom) and other.data == self.data:
+            return True
+        return False
+
 #class to represent a lisp environment
 class Environment():
     def __init__(self, upper_env = None):
@@ -219,6 +225,13 @@ def eval(expr, env):
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function define")
         env.add_symbol(expr[1].data, eval(expr[2], env))
+
+    #eq? checks if 2 things are equal
+    if expr[0].data == "eq?":
+        #must be 2 arugements for eq? function
+        if len(expr[1:]) is not 2:
+            raise SyntaxError("Expected 2 arguements for function define")
+        return expr[1] == expr[2]
 
 def main():
     #repl
