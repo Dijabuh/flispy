@@ -42,6 +42,23 @@ class Atom():
         else:
             raise RuntimeError("Cant add 2 atoms that arent both numbers")
 
+    def __sub__(self, other):
+        if self.is_num and other.is_num:
+            return self.data - other.data
+        else:
+            raise RuntimeError("Cant subtract 2 atoms that arent both numbers")
+
+    def __mul__(self, other):
+        if self.is_num and other.is_num:
+            return self.data * other.data
+        else:
+            raise RuntimeError("Cant multiply 2 atoms that arent both numbers")
+
+    def __floordiv__(self, other):
+        if self.is_num and other.is_num:
+            return int(self.data / other.data)
+        else:
+            raise RuntimeError("Cant divide 2 atoms that arent both numbers")
 #class to represent a lisp environment
 class Environment():
     def __init__(self, upper_env = None):
@@ -60,10 +77,10 @@ class Environment():
         return self.env[symbol]
 
 #tuple represtinig all the primitives in this lisp
-Primitives = (Atom("+"), Atom("-"), Atom("*"), Atom("/"),
-              Atom("eq?"), Atom("quote"), Atom("cons"),
-              Atom("car"), Atom("cdr"), Atom("atom?"),
-              Atom("define"), Atom("lambda"), Atom("cond"))
+Primitives = ("+", "-", "*", "/",
+              "eq?", "quote", "cons",
+              "car", "cdr", "atom?",
+              "define", "lambda", "cond")
 
 
 #function to break down a line of text into a list valid tokens in lisp
@@ -167,10 +184,8 @@ def eval(expr, env):
         #must be 2 arguements for the + function
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function +")
-        print(type(expr[1]))
-        print(type(expr[2]))
         #return the sum of the 2 arguements
-        return eval(expr[1], env) + eval(expr[2], env)
+        return Atom(eval(expr[1], env) + eval(expr[2], env))
 
     #minus
     if expr[0].data is "-":
@@ -178,7 +193,7 @@ def eval(expr, env):
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function -")
         #return the sum of the 2 arguements
-        return eval(expr[1], env) - eval(expr[2], env)
+        return Atom(eval(expr[1], env) - eval(expr[2], env))
 
     #multiply
     if expr[0].data is "*":
@@ -186,7 +201,7 @@ def eval(expr, env):
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function *")
         #return the sum of the 2 arguements
-        return eval(expr[1], env) * eval(expr[2], env)
+        return Atom(eval(expr[1], env) * eval(expr[2], env))
 
     #divide
     if expr[0].data is "/":
@@ -194,14 +209,16 @@ def eval(expr, env):
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function /")
         #return the sum of the 2 arguements
-        return eval(expr[1], env) / eval(expr[2], env)
+        return Atom(eval(expr[1], env) // eval(expr[2], env))
 
     #define binds a symbol to an expression
     if expr[0].data == "define":
-        #must be 2 arguements for the / function
+        if expr[1].data in Primitives:
+            raise SyntaxError("Cant define a primitive")
+        #must be 2 arguements for the define function
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function define")
-        env.add_symbol(expr[1].data, expr[2])
+        env.add_symbol(expr[1].data, eval(expr[2], env))
 
 def main():
     #repl
@@ -211,7 +228,8 @@ def main():
         toke_str = tokenize(str)
         syntax_tree = parse(toke_str)
         insert_quote(syntax_tree)
-        print(syntax_tree)
-        print(eval(syntax_tree, env))
+        out = eval(syntax_tree, env)
+        if out is not None:
+            print(eval(syntax_tree, env))
 
 main()
