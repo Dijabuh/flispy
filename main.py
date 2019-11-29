@@ -230,8 +230,15 @@ def eval(expr, env):
     if expr[0].data == "eq?":
         #must be 2 arugements for eq? function
         if len(expr[1:]) is not 2:
-            raise SyntaxError("Expected 2 arguements for function define")
+            raise SyntaxError("Expected 2 arguements for function eq?")
         return expr[1] == expr[2]
+    
+    #quote returns the symbols passed in instead of evaluating them
+    if expr[0].data == "quote":
+        #must be 1 arguement for quote function
+        if len(expr[1:]) is not 1:
+            raise SyntaxError("Expected 1 arguements for function quote")
+        return expr[1]
 
 def main():
     #repl
