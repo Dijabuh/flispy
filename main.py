@@ -273,7 +273,7 @@ def eval(expr, env):
 
     #cdr functions returns a list of all but the first element in a list
     if expr[0].data == "cdr":
-        #must be 1 arguement for car function
+        #must be 1 arguement for cdr function
         if len(expr[1:]) is not 1:
             raise SyntaxError("Expected 1 arguement for function cdr")
         #arguemnt must be a list
@@ -289,6 +289,13 @@ def eval(expr, env):
             else:
                 raise SyntaxError("Expected arguement to be a list for function cdr")
         return eval(expr[1], env)[1:]
+
+    #atom? function returns true if the arguement is an atom
+    if expr[0].data == "atom?":
+        #must be 1 arguement for atom? function
+        if len(expr[1:]) is not 1:
+            raise SyntaxError("Expected 1 arguement for function atom?")
+        return isinstance(expr[1], Atom)
 
 
     #if nothing else gets run, return the expression
