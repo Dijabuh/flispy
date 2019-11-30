@@ -248,8 +248,8 @@ def eval(expr, env):
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function cons")
         l = list()
-        l.append(expr[1])
-        l.append(expr[2])
+        l.append(eval(expr[1], env))
+        l.append(eval(expr[2], env))
         return l
     
     #car function returns the first element in a list
@@ -269,8 +269,29 @@ def eval(expr, env):
                 expr[1] = eval(expr[1], env)
             else:
                 raise SyntaxError("Expected arguement to be a list for function car")
-        return expr[1][0]
+        return eval(expr[1][0], env)
 
+    #cdr functions returns a list of all but the first element in a list
+    if expr[0].data == "cdr":
+        #must be 1 arguement for car function
+        if len(expr[1:]) is not 1:
+            raise SyntaxError("Expected 1 arguement for function cdr")
+        #arguemnt must be a list
+        if not isinstance(expr[1], list):
+            #if not a list, check if its a symbol
+            if expr[1].is_str:
+                #if it is, get the expression associated with the symbol
+                #and check if that is a list
+                if not isinstance(eval(expr[1], env), list):
+                    raise SyntaxError("Expected arguement to be a list for function cdr")
+                #if it is a list, continue with function
+                expr[1] = eval(expr[1], env)
+            else:
+                raise SyntaxError("Expected arguement to be a list for function cdr")
+        return eval(expr[1], env)[1:]
+
+
+    #if nothing else gets run, return the expression
     return expr
 
 def main():
