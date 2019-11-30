@@ -99,13 +99,14 @@ class Procedure():
         self.num_args = len(args)
 
     #evals procedure
-    def eval_proc(self, args):
+    def eval_proc(self, args, env):
         if len(args) is not self.num_args:
             raise SyntaxError("Wrong number of arguements for procedure call")
         
         #add arguements to environment
         for i in range(self.num_args):
-            self.env.add_symbol(self.args[i], args[i])
+            val = eval(args[i], env)
+            self.env.add_symbol(self.args[i].data, val)
 
         return eval(self.body, self.env)
 
@@ -221,7 +222,7 @@ def eval(expr, env):
         return Atom(eval(expr[1], env) + eval(expr[2], env))
 
     #minus
-    if expr[0].data is "-":
+    elif expr[0].data is "-":
         #must be 2 arguements for the - function
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function -")
@@ -229,7 +230,7 @@ def eval(expr, env):
         return Atom(eval(expr[1], env) - eval(expr[2], env))
 
     #multiply
-    if expr[0].data is "*":
+    elif expr[0].data is "*":
         #must be 2 arguements for the * function
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function *")
@@ -237,7 +238,7 @@ def eval(expr, env):
         return Atom(eval(expr[1], env) * eval(expr[2], env))
 
     #divide
-    if expr[0].data is "/":
+    elif expr[0].data is "/":
         #must be 2 arguements for the / function
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function /")
@@ -245,7 +246,7 @@ def eval(expr, env):
         return Atom(eval(expr[1], env) // eval(expr[2], env))
 
     #define binds a symbol to an expression
-    if expr[0].data == "define":
+    elif expr[0].data == "define":
         if expr[1].data in Primitives:
             raise SyntaxError("Cant define a primitive")
         #must be 2 arguements for the define function
@@ -256,21 +257,21 @@ def eval(expr, env):
         return None
 
     #eq? checks if 2 things are equal
-    if expr[0].data == "eq?":
+    elif expr[0].data == "eq?":
         #must be 2 arugements for eq? function
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function eq?")
         return expr[1] == expr[2]
     
     #quote returns the symbols passed in instead of evaluating them
-    if expr[0].data == "quote":
+    elif expr[0].data == "quote":
         #must be 1 arguement for quote function
         if len(expr[1:]) is not 1:
             raise SyntaxError("Expected 1 arguements for function quote")
         return expr[1]
 
     #cons returns a list containing the 2 arguements
-    if expr[0].data == "cons":
+    elif expr[0].data == "cons":
         #must be 2 arguements for cons function
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function cons")
@@ -280,7 +281,7 @@ def eval(expr, env):
         return l
     
     #car function returns the first element in a list
-    if expr[0].data == "car":
+    elif expr[0].data == "car":
         #must be 1 arguement for car function
         if len(expr[1:]) is not 1:
             raise SyntaxError("Expected 1 arguement for function car")
@@ -299,7 +300,7 @@ def eval(expr, env):
         return eval(expr[1][0], env)
 
     #cdr functions returns a list of all but the first element in a list
-    if expr[0].data == "cdr":
+    elif expr[0].data == "cdr":
         #must be 1 arguement for cdr function
         if len(expr[1:]) is not 1:
             raise SyntaxError("Expected 1 arguement for function cdr")
@@ -318,12 +319,29 @@ def eval(expr, env):
         return eval(expr[1], env)[1:]
 
     #atom? function returns true if the arguement is an atom
-    if expr[0].data == "atom?":
+    elif expr[0].data == "atom?":
         #must be 1 arguement for atom? function
         if len(expr[1:]) is not 1:
             raise SyntaxError("Expected 1 arguement for function atom?")
         return isinstance(expr[1], Atom)
 
+    #lambda function creates a user defined function
+    elif expr[0].data == "lambda":
+        #must be 2 arguements for lambda function
+        if len(expr[1:]) is not 2:
+            raise SyntaxError("Expected 2 arguements for function lambda")
+
+        #both arguements must be lists
+        if not isinstance(expr[1], list):
+            raise SyntaxError("Expected arguements for lambda definition to be a list")
+        if not isinstance(expr[2], list):
+            raise SyntaxError("Expected body for lambda definition to be a list")
+
+        proc = Procedure(env, expr[2], expr[1])
+        return proc
+
+    elif expr[0].data in env.env and isinstance(eval(expr[0], env), Procedure):
+        return eval(expr[0], env).eval_proc(expr[1:], env)
 
     #if nothing else gets run, return the expression
     return expr
