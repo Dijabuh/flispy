@@ -88,6 +88,27 @@ class Environment():
         else:
             raise SyntaxError("Symbol not defined")
 
+#class to represent user defined procedures
+class Procedure():
+    #procedures are created with an environment, body of the procedurem and arguements
+    def __init__(self, env, body, args):
+        #the procedures environment has an upper_env of the passed environment
+        self.env = Environment(env)
+        self.body = body
+        self.args = args
+        self.num_args = len(args)
+
+    #evals procedure
+    def eval_proc(self, args):
+        if len(args) is not self.num_args:
+            raise SyntaxError("Wrong number of arguements for procedure call")
+        
+        #add arguements to environment
+        for i in range(self.num_args):
+            self.env.add_symbol(self.args[i], args[i])
+
+        return eval(self.body, self.env)
+
 #tuple represtinig all the primitives in this lisp
 Primitives = ("+", "-", "*", "/",
               "eq?", "quote", "cons",
