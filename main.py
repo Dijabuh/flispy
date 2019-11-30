@@ -340,6 +340,11 @@ def eval(expr, env):
         proc = Procedure(env, expr[2], expr[1])
         return proc
 
+    #cond function is a block of if/then/else statements
+    #elif expr[0].data == "cond":
+
+
+    #perform function call if none of the primitives were called
     elif expr[0].data in env.env and isinstance(eval(expr[0], env), Procedure):
         return eval(expr[0], env).eval_proc(expr[1:], env)
 
