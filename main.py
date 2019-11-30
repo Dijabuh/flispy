@@ -226,6 +226,8 @@ def eval(expr, env):
             raise SyntaxError("Expected 2 arguements for function define")
         env.add_symbol(expr[1].data, eval(expr[2], env))
 
+        return None
+
     #eq? checks if 2 things are equal
     if expr[0].data == "eq?":
         #must be 2 arugements for eq? function
@@ -249,6 +251,27 @@ def eval(expr, env):
         l.append(expr[1])
         l.append(expr[2])
         return l
+    
+    #car function returns the first element in a list
+    if expr[0].data == "car":
+        #must be 1 arguement for car function
+        if len(expr[1:]) is not 1:
+            raise SyntaxError("Expected 1 arguement for function car")
+        #arguemnt must be a list
+        if not isinstance(expr[1], list):
+            #if not a list, check if its a symbol
+            if expr[1].is_str:
+                #if it is, get the expression associated with the symbol
+                #and check if that is a list
+                if not isinstance(eval(expr[1], env), list):
+                    raise SyntaxError("Expected arguement to be a list for function car")
+                #if it is a list, continue with function
+                expr[1] = eval(expr[1], env)
+            else:
+                raise SyntaxError("Expected arguement to be a list for function car")
+        return expr[1][0]
+
+    return expr
 
 def main():
     #repl
