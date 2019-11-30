@@ -240,6 +240,16 @@ def eval(expr, env):
             raise SyntaxError("Expected 1 arguements for function quote")
         return expr[1]
 
+    #cons returns a list containing the 2 arguements
+    if expr[0].data == "cons":
+        #must be 2 arguements for cons function
+        if len(expr[1:]) is not 2:
+            raise SyntaxError("Expected 2 arguements for function cons")
+        l = list()
+        l.append(expr[1])
+        l.append(expr[2])
+        return l
+
 def main():
     #repl
     env = Environment()
@@ -247,9 +257,11 @@ def main():
         str = input()
         toke_str = tokenize(str)
         syntax_tree = parse(toke_str)
-        insert_quote(syntax_tree)
+        #insert_quote(syntax_tree)
         out = eval(syntax_tree, env)
         if out is not None:
+            #need to check is return value is is a list
+            #if it is, need to recursivley turn the list into a symbol instead of returning a list
             print(eval(syntax_tree, env))
 
 main()
