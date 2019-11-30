@@ -69,6 +69,7 @@ class Atom():
 class Environment():
     def __init__(self, upper_env = None):
         self.env = dict()
+        self.upper_env = upper_env
         #if an environemnt was passed in, copy its environment to the new one
         #used for procedure calls
         if upper_env:
@@ -80,7 +81,12 @@ class Environment():
 
     #retreives the expression from a given symbol
     def get_expr(self, symbol):
-        return self.env[symbol]
+        if symbol in self.env:
+            return self.env[symbol]
+        elif self.upper_env:
+            return self.upper_env.get_expr(symbol)
+        else:
+            raise SyntaxError("Symbol not defined")
 
 #tuple represtinig all the primitives in this lisp
 Primitives = ("+", "-", "*", "/",
