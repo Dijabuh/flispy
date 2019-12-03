@@ -211,6 +211,9 @@ def eval(expr, env):
     #return the expression defined by the symbol
     elif isinstance(expr, Atom):
         return env.get_expr(expr.data)
+    
+    if isinstance(expr, list) and len(expr) is 0:
+        return expr
 
     #otherwise, the expression is a list
     #first check if the first expression in the list is one of the primitives
