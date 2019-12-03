@@ -1,0 +1,6 @@
+1) Split up classes into different files
+2) add repl functions (!quit, !load, etc.)
+3) improve repl
+	* Add a user prompt
+	* Try to add scrolling through past entries in repl
+
