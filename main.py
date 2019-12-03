@@ -1,3 +1,4 @@
+import copy
 #functions to test if a given variable is an int/float
 def is_int(num):
     try:
@@ -72,8 +73,8 @@ class Environment():
         self.upper_env = upper_env
         #if an environemnt was passed in, copy its environment to the new one
         #used for procedure calls
-        if upper_env:
-            self.env = upper_env.env.copy()
+        if upper_env is not None:
+            self.env = copy.deepcopy(upper_env.env)
 
     #binds a symbol to an expression
     def add_symbol(self, symbol, expr):
@@ -83,7 +84,7 @@ class Environment():
     def get_expr(self, symbol):
         if symbol in self.env:
             return self.env[symbol]
-        elif self.upper_env:
+        elif self.upper_env is not None:
             return self.upper_env.get_expr(symbol)
         else:
             raise SyntaxError("Symbol not defined")
@@ -93,22 +94,22 @@ class Procedure():
     #procedures are created with an environment, body of the procedurem and arguements
     def __init__(self, env, body, args):
         #the procedures environment has an upper_env of the passed environment
-        self.env = Environment(env)
+        self.env = env
         self.body = body
         self.args = args
         self.num_args = len(args)
 
     #evals procedure
-    def eval_proc(self, args, env):
+    def eval_proc(self, args):
         if len(args) is not self.num_args:
             raise SyntaxError("Wrong number of arguements for procedure call")
-        
+        env = Environment(self.env)
         #add arguements to environment
         for i in range(self.num_args):
             val = eval(args[i], env)
-            self.env.add_symbol(self.args[i].data, val)
+            env.add_symbol(self.args[i].data, val)
 
-        return eval(self.body, self.env)
+        return eval(self.body, env)
 
 #tuple represtinig all the primitives in this lisp
 Primitives = ("+", "-", "*", "/",
@@ -359,7 +360,7 @@ def eval(expr, env):
 
     #perform function call if none of the primitives were called
     elif expr[0].data in env.env and isinstance(eval(expr[0], env), Procedure):
-        return eval(expr[0], env).eval_proc(expr[1:], env)
+        return eval(expr[0], env).eval_proc(expr[1:])
 
     #if nothing else gets run, return the expression
     return expr
