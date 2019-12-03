@@ -261,7 +261,7 @@ def eval(expr, env):
         #must be 2 arugements for eq? function
         if len(expr[1:]) is not 2:
             raise SyntaxError("Expected 2 arguements for function eq?")
-        return expr[1] == expr[2]
+        return eval(expr[1], env) == eval(expr[2], env)
     
     #quote returns the symbols passed in instead of evaluating them
     elif expr[0].data == "quote":
