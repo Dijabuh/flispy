@@ -341,8 +341,21 @@ def eval(expr, env):
         return proc
 
     #cond function is a block of if/then/else statements
-    #elif expr[0].data == "cond":
-
+    elif expr[0].data == "cond":
+        for l in expr[1:]:
+            if not isinstance(l, list):
+                raise SyntaxError("All arguements of cond must be lists")
+            if len(l) is not 2:
+                raise SyntaxError("Each cond block must have 2 arguements")
+            if not isinstance(l[0], list) and l[0].data == "else":
+                #if it is else, eval the second part of l then finish going through cond loop
+                return eval(l[1], env)
+            else:
+                ##if it isnt, check if the eval arguement 1 is true
+                #if it is, run the eval arguement 2 then break
+                if eval(l[0], env) is True:
+                    return eval(l[1], env)
+        return None
 
     #perform function call if none of the primitives were called
     elif expr[0].data in env.env and isinstance(eval(expr[0], env), Procedure):
