@@ -1,4 +1,4 @@
-1) Split up classes into different files
+1) Split up classes into different files : Done
 2) add repl functions (!quit, !load, etc.)
 3) improve repl
 	* Add a user prompt
