@@ -1,2 +1,5 @@
 (define true (eq? 1 1))
 (define false (eq? 1 2))
+(define not (lambda (a) (cond ((eq? a true) false) (else true))))
+(define or (lambda (a b) (cond ((eq? a true) true) ((eq? b true) true) (else false))))
+(define and (lambda (a b) (not (or (not a) (not b)))))
