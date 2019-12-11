@@ -1,4 +1,3 @@
-import curses
 from Atom import Atom
 from Env import Environment
 import Eval as ev
@@ -7,6 +6,7 @@ import Parser as par
 def main():
     #repl
     env = Environment()
+    print("Welcome to the lisp interpreter")
     while True:
         str = input()
         if str == "!quit":
