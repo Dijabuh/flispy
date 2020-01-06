@@ -1,4 +1,3 @@
-from Env import Environment
 from Atom import Atom
 import Proc
 

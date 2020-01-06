@@ -1,4 +1,3 @@
-from Atom import Atom
 from Env import Environment
 import Eval
 
