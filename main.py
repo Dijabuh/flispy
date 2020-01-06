@@ -1,11 +1,10 @@
-from Atom import Atom
-from Env import Environment
+import Env
 import Eval as ev
 import Parser as par
 
 def main():
     #repl
-    env = Environment()
+    env = Env.Environment()
     print("Welcome to the lisp interpreter")
     while True:
         str = input()

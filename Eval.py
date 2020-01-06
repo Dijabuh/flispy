@@ -1,5 +1,6 @@
 from Env import Environment
 from Atom import Atom
+import Proc
 
 #tuple represtinig all the primitives in this lisp
 Primitives = ("+", "-", "*", "/",
@@ -146,7 +147,7 @@ def eval(expr, env):
         if not isinstance(expr[2], list):
             raise SyntaxError("Expected body for lambda definition to be a list")
 
-        proc = Procedure(env, expr[2], expr[1])
+        proc = Proc.Procedure(env, expr[2], expr[1])
         return proc
 
     #cond function is a block of if/then/else statements
@@ -167,31 +168,9 @@ def eval(expr, env):
         return None
 
     #perform function call if none of the primitives were called
-    elif expr[0].data in env.env and isinstance(eval(expr[0], env), Procedure):
+    elif expr[0].data in env.env and isinstance(eval(expr[0], env), Proc.Procedure):
         return eval(expr[0], env).eval_proc(expr[1:])
 
     #if nothing else gets run, return the expression
     return expr
-
-#class to represent user defined procedures
-class Procedure():
-    #procedures are created with an environment, body of the procedurem and arguements
-    def __init__(self, env, body, args):
-        #the procedures environment has an upper_env of the passed environment
-        self.env = env
-        self.body = body
-        self.args = args
-        self.num_args = len(args)
-
-    #evals procedure
-    def eval_proc(self, args):
-        if len(args) is not self.num_args:
-            raise SyntaxError("Wrong number of arguements for procedure call")
-        env = Environment(self.env)
-        #add arguements to environment
-        for i in range(self.num_args):
-            val = eval(args[i], env)
-            env.add_symbol(self.args[i].data, val)
-
-        return eval(self.body, env)
 
